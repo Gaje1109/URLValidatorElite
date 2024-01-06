@@ -35,7 +35,8 @@ resource "aws_lambda_function" "bits-wilp-URLValidatorElite" {
   handler       = "com.wilp.bits.url.URLValidator"
   memory_size   = 512
   timeout       = 900
-  filename      = "s3://my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+  filename      = "URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+  source_code_hash = filebase64sha256("s3://my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar")
 
   lifecycle {
     prevent_destroy = true
