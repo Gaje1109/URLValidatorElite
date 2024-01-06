@@ -32,14 +32,20 @@ resource "aws_lambda_function" "bits-wilp-URLValidatorElite" {
   role          = aws_iam_role.bits-wilp-URLValidationElite-lambda_execution_role.arn
   function_name = "bits-wilp-URLValidationElite"
   runtime       = "java8"
-  handler       = "com.wilp.bits.url.URLValidator"
+  handler       = "com.wilp.bits.lambda.ConnectEC2UsingSSM"
   memory_size   = 512
   timeout       = 900
-  filename      = "C:/Users/DELL/git/URLValidatorElite/URLValidatorElite/target/URLValidatorElite-0.0.1-SNAPSHOT.jar"
+  s3_bucket     = "my-bits-wilp-jars"
+  s3_key        = "URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+ # filename      = "my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+ # source_code_hash = filebase64sha256("s3://my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar")
 
   lifecycle {
     prevent_destroy = true
   }
+}
+data "aws_iam_policy" "s3_read_policy" {
+  arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
 }
 
 #IAM role for Lambda
@@ -72,6 +78,10 @@ EOF
 #Attach Policies to the Lambda execution role
 resource "aws_iam_role_policy_attachment" "bits-wilp-URLValidationElite-lambda_execution_role_attachement" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.bits-wilp-URLValidationElite-lambda_execution_role.name
+}
+resource "aws_iam_role_policy_attachment" "lambda_s3_read_policy_attachment" {
+  policy_arn = data.aws_iam_policy.s3_read_policy.arn
   role       = aws_iam_role.bits-wilp-URLValidationElite-lambda_execution_role.name
 }
 
