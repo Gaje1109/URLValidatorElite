@@ -16,6 +16,8 @@ import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 //AWS Utilities
 public class AWSUtilites {
 	String methodsName="";
+	
+	//AWS Credentials integrated
 	FileUtility fileutil= new FileUtility();
 
 	String[] keys=fileutil.decryptData().split(",");

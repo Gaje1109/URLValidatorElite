@@ -23,6 +23,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<String, String>{
 
 	public String handleRequest(String input, Context context) {
 		EC2Utilities ec2Util= new EC2Utilities();
+		//AWS Credentials integrated
 		FileUtility fileutil= new FileUtility();
 
 		String[] keys=fileutil.decryptData().split(",");
