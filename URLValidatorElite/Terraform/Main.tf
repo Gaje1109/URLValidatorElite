@@ -42,6 +42,9 @@ resource "aws_lambda_function" "bits-wilp-URLValidatorElite" {
     prevent_destroy = true
   }
 }
+data "aws_iam_policy" "s3_read_policy" {
+  arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+}
 
 #IAM role for Lambda
 resource "aws_iam_role" "bits-wilp-URLValidationElite-lambda_execution_role" {
@@ -73,6 +76,10 @@ EOF
 #Attach Policies to the Lambda execution role
 resource "aws_iam_role_policy_attachment" "bits-wilp-URLValidationElite-lambda_execution_role_attachement" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.bits-wilp-URLValidationElite-lambda_execution_role.name
+}
+resource "aws_iam_role_policy_attachment" "lambda_s3_read_policy_attachment" {
+  policy_arn = data.aws_iam_policy.s3_read_policy.arn
   role       = aws_iam_role.bits-wilp-URLValidationElite-lambda_execution_role.name
 }
 
