@@ -35,7 +35,9 @@ resource "aws_lambda_function" "bits-wilp-URLValidatorElite" {
   handler       = "com.wilp.bits.lambda.ConnectEC2UsingSSM"
   memory_size   = 512
   timeout       = 900
-  filename      = "my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+  s3_bucket     = "my-bits-wilp-jars"
+  s3_key        = "URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+ # filename      = "my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
  # source_code_hash = filebase64sha256("s3://my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar")
 
   lifecycle {
