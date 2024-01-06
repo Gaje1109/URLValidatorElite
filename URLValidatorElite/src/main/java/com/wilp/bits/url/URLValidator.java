@@ -16,6 +16,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.wilp.bits.aws.AWSUtilites;
+import com.wilp.bits.aws.FileUtility;
 import com.wilp.bits.aws.SecretManagerUtility;
 //import com.wilp.bits.aws.AWSUtilites;
 import com.wilp.bits.email.EmailManagement;
@@ -23,13 +24,9 @@ import com.wilp.bits.email.EmailManagement;
 	String methodsName="";
     public static void main( String[] args ) throws IOException
     {
-       URLValidator url = new URLValidator();
-       SecretManagerUtility getsecrets= new SecretManagerUtility();
-       getsecrets.getSecretsFromAWS();
-       
-       
-     // ArrayList<String> columnvalues =url.readXLFile();
-      // url.writeXLSheet(columnvalues);
+       URLValidator url = new URLValidator();       
+      ArrayList<String> columnvalues =url.readXLFile();
+      url.writeXLSheet(columnvalues);
     }        
       
     private String createXLSheet()

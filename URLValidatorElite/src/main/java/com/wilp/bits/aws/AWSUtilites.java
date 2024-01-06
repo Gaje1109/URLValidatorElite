@@ -16,7 +16,13 @@ import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 //AWS Utilities
 public class AWSUtilites {
 	String methodsName="";
-	BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIATWVMFH3A36SY6FTD","C8X/O0RPyDKOQ6GiiLi3FBmA4Eb9hVeKnxm3hmWS");
+	FileUtility fileutil= new FileUtility();
+
+	String[] keys=fileutil.decryptData().split(",");
+	String accesskey= keys[0];
+	String secretKey=keys[1];
+	
+	BasicAWSCredentials awsCreds = new BasicAWSCredentials(accesskey,secretKey);
 	AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion("ap-south-1").withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
 	
 	
