@@ -17,8 +17,7 @@ import software.amazon.awssdk.services.ssm.model.SendCommandRequest;
 import software.amazon.awssdk.services.ssm.model.SendCommandResponse;
 
 
-
-//com.wilp.bits.lambda.ConnectEC2UsingSSM
+//Lambda function
 public class ConnectEC2UsingSSM implements RequestHandler<String, String>{
 
 	public String handleRequest(String input, Context context) {

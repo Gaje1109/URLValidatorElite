@@ -14,7 +14,7 @@ import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 
 
-//AWS Utilities
+//S3 Bucket utility
 public class S3BucketUtility {
 	String methodsName="";
 	

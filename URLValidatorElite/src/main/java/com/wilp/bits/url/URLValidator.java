@@ -23,7 +23,8 @@ import com.wilp.bits.email.EmailManagement;
     public static void main( String[] args ) throws IOException
     {
       URLValidator url = new URLValidator();  
-    
+      
+      //Read and Write Excel
       ArrayList<String> columnvalues =url.readXLFile();
       url.writeXLSheet(columnvalues);
     }        

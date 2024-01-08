@@ -69,7 +69,7 @@ public class FileUtility {
 	}//encrypt files --close
 
 	
-	
+	//Read S3 bucket and decrypt the contents
 	public String readS3FileAndDecrypt(String bucket_name, String key_name)
 	{
 		String line="";
