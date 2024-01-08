@@ -13,29 +13,30 @@ import com.amazonaws.services.s3.transfer.Download;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 
+
 //AWS Utilities
-public class AWSUtilites {
+public class S3BucketUtility {
 	String methodsName="";
 	
 	//AWS Credentials integrated
 	FileUtility fileutil= new FileUtility();
-
-	String[] keys=fileutil.decryptData().split(",");
+	String[] keys=fileutil.getTokens().split(",");
 	String accesskey= keys[0];
-	String secretKey=keys[1];
+	String secretkey=keys[1];
 	
-	BasicAWSCredentials awsCreds = new BasicAWSCredentials(accesskey,secretKey);
+	BasicAWSCredentials awsCreds = new BasicAWSCredentials(accesskey,secretkey);
 	AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion("ap-south-1").withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
 	
 	
-	public String getS3Files() throws IOException
+
+	public String getS3Files(String bucket_name, String fileName) throws IOException
 	   {
 		methodsName="AWSUtilites.getS3Files()";
 		System.out.println("Inside "+methodsName+ "-- starts");
-		String fileName= "";
+		//String fileName= "";
 		String downloadedfilename="";
 		try{
-		   String bucket_name="bits-wilp-ap-south-1";
+		  // String bucket_name="bits-wilp-ap-south-1";
 		   ObjectListing list= s3Client.listObjects(bucket_name);
 			 
 			for(S3ObjectSummary object : list.getObjectSummaries())

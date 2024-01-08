@@ -15,16 +15,15 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.wilp.bits.aws.AWSUtilites;
-import com.wilp.bits.aws.FileUtility;
-import com.wilp.bits.aws.SecretManagerUtility;
+import com.wilp.bits.aws.S3BucketUtility;
 //import com.wilp.bits.aws.AWSUtilites;
 import com.wilp.bits.email.EmailManagement;
 	public class URLValidator{
 	String methodsName="";
     public static void main( String[] args ) throws IOException
     {
-       URLValidator url = new URLValidator();       
+      URLValidator url = new URLValidator();  
+    
       ArrayList<String> columnvalues =url.readXLFile();
       url.writeXLSheet(columnvalues);
     }        
@@ -80,9 +79,9 @@ import com.wilp.bits.email.EmailManagement;
     	methodsName="URLValidator.readXLFile()";
     	String columnValues="";
     	ArrayList<String> columnval = null;
-    	AWSUtilites amazonutils= new AWSUtilites();
+    	S3BucketUtility amazonutils= new S3BucketUtility();
     //	String inputfile="C:/Users/DELL/Documents/MAH/Mah.xlsx";
-    	String inputfile= amazonutils.getS3Files();
+    	String inputfile= amazonutils.getS3Files("bits-wilp-ap-south-1","");
     	try
     	{
     	FileInputStream fis= new FileInputStream(inputfile);
@@ -131,7 +130,7 @@ import com.wilp.bits.email.EmailManagement;
     	Row header;
     	Cell column=null;
     	String columnValues="";
-    	AWSUtilites util = new AWSUtilites();
+    	S3BucketUtility util = new S3BucketUtility();
     	try {
     		//Fetching the newly created XL File
     		 createdfile= createXLSheet();

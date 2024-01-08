@@ -26,7 +26,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<String, String>{
 		//AWS Credentials integrated
 		FileUtility fileutil= new FileUtility();
 
-		String[] keys=fileutil.decryptData().split(",");
+		String[] keys=fileutil.getTokens().split(",");
 		String accesskey= keys[0];
 		String secretkey=keys[1];
 
