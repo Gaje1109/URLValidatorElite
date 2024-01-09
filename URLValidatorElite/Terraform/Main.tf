@@ -90,11 +90,14 @@ resource "aws_instance" "Bits_wilp_DP" {
   ami           = "ami-0a0f1259dd1c90938"
   instance_type = "t2.micro"
   key_name      = aws_key_pair.my-bits-wilp-aws-key-pair.key_name
+  iam_instance_profile = aws_iam_role.bits-wilp-URLValidationElite-ec2_execution.name
   tags = {
     Name = "public_instance"
   }
 }
-
+output "Bits_wilp_DP_id"{
+  value=aws_instance.Bits_wilp_DP.id
+}
 #IAM role for EC2-SSM role
 resource "aws_iam_role" "bits-wilp-URLValidationElite-ec2_execution" {
   name = "bits-wilp-ec2-ssm-role"

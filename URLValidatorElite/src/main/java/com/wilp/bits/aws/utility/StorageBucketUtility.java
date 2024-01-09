@@ -1,4 +1,4 @@
-package com.wilp.bits.aws;
+package com.wilp.bits.aws.utility;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,40 +12,35 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.Download;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.wilp.bits.config.utility.ReadWriteProps;
 
-
-//S3 Bucket utility
-public class S3BucketUtility {
+// Amazon S3 Bucket Utility
+public class StorageBucketUtility {
 	String methodsName="";
-	
-	//AWS Credentials integrated
-	FileUtility fileutil= new FileUtility();
-	String[] keys=fileutil.getTokens().split(",");
+
+	ReadWriteProps props= new ReadWriteProps();
+	String[] keys=props.ReadPropsFile().split(",");
 	String accesskey= keys[0];
 	String secretkey=keys[1];
-	
 	BasicAWSCredentials awsCreds = new BasicAWSCredentials(accesskey,secretkey);
 	AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion("ap-south-1").withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
-	
-	
 
-	public String getS3Files(String bucket_name, String fileName) throws IOException
+	
+	public String getFiles(String bucketName, String fileName) throws IOException
 	   {
 		methodsName="AWSUtilites.getS3Files()";
 		System.out.println("Inside "+methodsName+ "-- starts");
 		//String fileName= "";
 		String downloadedfilename="";
 		try{
-		  // String bucket_name="bits-wilp-ap-south-1";
-		   ObjectListing list= s3Client.listObjects(bucket_name);
+		   ObjectListing list= s3Client.listObjects(bucketName);
 			 
 			for(S3ObjectSummary object : list.getObjectSummaries())
 			{
 				  System.out.println("File: " + object.getKey() + " Size: " + object.getSize());
 				  fileName= object.getKey(); 
 			}
-			// readS3Files(fileName);
-			downloadedfilename= downloadFile(s3Client,bucket_name,fileName);
+			downloadedfilename= downloadFile(s3Client,bucketName,fileName);
 			
 		}catch(Exception e)
 		{
@@ -87,12 +82,12 @@ public class S3BucketUtility {
 	
 	
 	
-		public void writeFileToS3Bucket(String createdfile)
+		public void writeFileToBucket(String createdfile)
 		   {	
 			methodsName="AWSUtilites.writeFileToS3Bucket()";
 			System.out.println("Inside "+methodsName+ "-- starts");
 			String bucketName = "my-bits-wilp-jars";
-			String folderName = "folder1";
+			String folderName = "";
 			String fileNameInS3 = createdfile;
 			String fileNameInLocalPC = createdfile;
 			String key= folderName + "/" + fileNameInS3;

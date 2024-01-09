@@ -15,21 +15,24 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.wilp.bits.aws.S3BucketUtility;
+import com.wilp.bits.aws.utility.StorageBucketUtility;
+import com.wilp.bits.config.utility.ReadWriteProps;
 //import com.wilp.bits.aws.AWSUtilites;
 import com.wilp.bits.email.EmailManagement;
 	public class URLValidator{
 	String methodsName="";
+	  
     public static void main( String[] args ) throws IOException
     {
       URLValidator url = new URLValidator();  
-      
+      //EC2Utilities util= new EC2Utilities();
       //Read and Write Excel
-      ArrayList<String> columnvalues =url.readXLFile();
-      url.writeXLSheet(columnvalues);
+      ArrayList<String> columnvalues =url.readXlFile();
+      url.writeXlSheet(columnvalues);
+
     }        
       
-    private String createXLSheet()
+    private String createXlSheet()
     {
     	File tempFile = null;
     	try
@@ -75,14 +78,15 @@ import com.wilp.bits.email.EmailManagement;
     
     
     //Read Request XL File
-    private ArrayList<String> readXLFile() throws IOException
+    private ArrayList<String> readXlFile() throws IOException
     {
     	methodsName="URLValidator.readXLFile()";
     	String columnValues="";
     	ArrayList<String> columnval = null;
-    	S3BucketUtility amazonutils= new S3BucketUtility();
     //	String inputfile="C:/Users/DELL/Documents/MAH/Mah.xlsx";
-    	String inputfile= amazonutils.getS3Files("bits-wilp-ap-south-1","");
+    	StorageBucketUtility amazonutils= new StorageBucketUtility();
+    	  
+    	String inputfile= amazonutils.getFiles("bits-wilp-ap-south-1","");
     	try
     	{
     	FileInputStream fis= new FileInputStream(inputfile);
@@ -120,7 +124,7 @@ import com.wilp.bits.email.EmailManagement;
     }
     
    //Write to XL file
-    private void writeXLSheet(ArrayList<String> columnbasevalues)
+    private void writeXlSheet(ArrayList<String> columnbasevalues)
     {
     	methodsName="URLValidator.writeXLSheet()";
     	String createdfile="";
@@ -131,10 +135,10 @@ import com.wilp.bits.email.EmailManagement;
     	Row header;
     	Cell column=null;
     	String columnValues="";
-    	S3BucketUtility util = new S3BucketUtility();
+    	StorageBucketUtility util = new StorageBucketUtility();
     	try {
     		//Fetching the newly created XL File
-    		 createdfile= createXLSheet();
+    		 createdfile= createXlSheet();
 			 input= new FileInputStream(createdfile);
 			 workbook = new XSSFWorkbook();
 			 sheet= workbook.createSheet("MAH URLs");
@@ -159,7 +163,7 @@ import com.wilp.bits.email.EmailManagement;
 			
 			validateURL(createdfile);
 			sendMail(createdfile);
-			util.writeFileToS3Bucket(createdfile);
+			util.writeFileToBucket(createdfile);
 		
 		} catch (FileNotFoundException e) {
 			System.out.println("Exception occured in "+methodsName+ " : "+e);
