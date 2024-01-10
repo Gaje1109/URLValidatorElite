@@ -37,8 +37,8 @@ resource "aws_lambda_function" "bits-wilp-URLValidatorElite" {
   timeout       = 900
   s3_bucket     = "my-bits-wilp-jars"
   s3_key        = "URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
- # filename      = "my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
- # source_code_hash = filebase64sha256("s3://my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar")
+  # filename      = "my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+  # source_code_hash = filebase64sha256("s3://my-bits-wilp-jars/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar")
 
   lifecycle {
     prevent_destroy = true
@@ -87,30 +87,76 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_read_policy_attachment" {
 
 #Create a EC2 instance
 resource "aws_instance" "Bits_wilp_DP" {
-  ami           = "ami-0a0f1259dd1c90938"
-  instance_type = "t2.micro"
-  key_name      = aws_key_pair.my-bits-wilp-aws-key-pair.key_name
+  ami                  = "ami-0a0f1259dd1c90938"
+  instance_type        = "t2.micro"
+  key_name             = aws_key_pair.my-bits-wilp-aws-key-pair.key_name
   iam_instance_profile = aws_iam_role.bits-wilp-URLValidationElite-ec2_execution.name
   tags = {
-    Name = "public_instance"
+    Name = "Bits_wilp_DP"
   }
 }
-output "Bits_wilp_DP_id"{
-  value=aws_instance.Bits_wilp_DP.id
+output "Bits_wilp_DP_id" {
+  value = aws_instance.Bits_wilp_DP.id
 }
 #IAM role for EC2-SSM role
 resource "aws_iam_role" "bits-wilp-URLValidationElite-ec2_execution" {
-  name = "bits-wilp-ec2-ssm-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Action = "sts:AssumeRole",
-      Effect = "Allow",
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      }
-    }]
-  })
+  name               = "bits-wilp-instance-ssm-role"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:DescribeAssociation",
+        "ssm:GetDeployablePatchSnapshotForInstance",
+        "ssm:GetDocument",
+        "ssm:DescribeDocument",
+        "ssm:GetManifest",
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:ListAssociations",
+        "ssm:ListInstanceAssociations",
+        "ssm:PutInventory",
+        "ssm:PutComplianceItems",
+        "ssm:PutConfigurePackageResult",
+        "ssm:UpdateAssociationStatus",
+        "ssm:UpdateInstanceAssociationStatus",
+        "ssm:UpdateInstanceInformation"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2messages:AcknowledgeMessage",
+        "ec2messages:DeleteMessage",
+        "ec2messages:FailMessage",
+        "ec2messages:GetEndpoint",
+        "ec2messages:GetMessages",
+        "ec2messages:SendReply"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+
+  lifecycle {
+    ignore_changes = [
+      assume_role_policy
+    ]
+  }
 }
 # Attach SSM role to EC2 instance
 resource "aws_iam_role_policy_attachment" "ssm_policy_attachment" {
@@ -135,8 +181,6 @@ resource "aws_s3_bucket_notification" "aws_s3_bucket_notification" {
   }
   depends_on = [aws_lambda_function.bits-wilp-URLValidatorElite]
 }
-
-#EC2 instance cration
 
 #Generate .pem file
 resource "tls_private_key" "my-bits-wilp-pem" {

@@ -136,7 +136,7 @@ pipeline{
                   echo 'URLValidatorElite: Push Terraform File to S3 bucket -- ends'
             }
         }
-    }
+    
 }// stages close
 post{
     success{

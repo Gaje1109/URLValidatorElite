@@ -5,90 +5,99 @@ import java.io.FileInputStream
 ;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import com.wilp.bits.aws.utility.StorageBucketUtility;
-import com.wilp.bits.config.utility.ReadWriteProps;
-//import com.wilp.bits.aws.AWSUtilites;
+
 import com.wilp.bits.email.EmailManagement;
 	public class URLValidator{
+	private static final Logger urlvalidator= Logger.getLogger(URLValidator.class.getName());
 	String methodsName="";
+	String xlfileName= "MAH_&date&_1.xlsx";
 	  
     public static void main( String[] args ) throws IOException
     {
       URLValidator url = new URLValidator();  
-      //EC2Utilities util= new EC2Utilities();
+      urlvalidator.info("-----------URL VALIDATOR ELITE------------");
       //Read and Write Excel
       ArrayList<String> columnvalues =url.readXlFile();
       url.writeXlSheet(columnvalues);
 
     }        
-      
-    private String createXlSheet()
+    
+    // Create New File
+    private File createXlSheet()
     {
+    	methodsName="createXlSheet()";
     	File tempFile = null;
     	try
-    	{
-    		tempFile =File.createTempFile("Mah_20231206_1", ".xlsx");
-    		FileWriter writer= new FileWriter(tempFile);
-    		System.out.println("File created at: " + tempFile.getAbsolutePath());
-    	
-    	}catch(FileNotFoundException e){
-    		e.printStackTrace();
-    	} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+    	{	
+    		urlvalidator.info("Inside "+methodsName+" -- Start");
+    		String current_date_time= getExactDateAndTime();
+    		String home= System.getProperty("user.home");
+    		File directory= new File(home,"/tmp");
+    		directory.mkdir();
+    		urlvalidator.info("Home : "+home+ " Directory is: "+directory);
+    		tempFile=new File(directory,current_date_time);
+    		tempFile.createNewFile();
+    		urlvalidator.info("New File Created : "+tempFile);
+    	} catch (Exception e) {
+			urlvalidator.log(Level.SEVERE,"Exception occured in "+methodsName+" : " +e);
 		}
-    	
-    	return tempFile.getAbsolutePath();
+    		urlvalidator.info("Inside "+methodsName+" -- End ");
+    	return tempFile;
     }
     
-    //Create Empty XL file 
-//    private String createXLSheet()
-//    {
-//    	methodsName="URLValidator.createXLSheet()";
-//    	String fileName="Mah_20231206_1.xlsx";
-//    	FileOutputStream fileoutput = null;
-//    	try {
-//    		fileoutput= new FileOutputStream(fileName);
-//    		System.out.println("File Created");
-//			
-//			
-//		} catch (FileNotFoundException e) {
-//			System.out.println("Exception occured in "+methodsName+ " : "+e);
-//		}finally
-//    	{
-//			try {
-//				fileoutput.close();
-//			} catch (IOException e) {
-//				System.out.println("Exception occured in "+methodsName+ " : "+e);
-//			}
-//    	}
-//    	return fileName;
-//    }
-//    
-    
+    //Name the file with Current date and time
+    private String getExactDateAndTime(){
+    	String dateTimeFileName="";
+    	methodsName="getExactDateAndTime()";
+    	try
+    	{
+    		urlvalidator.info("Inside "+methodsName+" -- Start");
+    		SimpleDateFormat dt1= new SimpleDateFormat("yyyyMMdd_HHmmss");
+    		dateTimeFileName= dt1.format(new Date());
+    		urlvalidator.info("Generated date file: "+dateTimeFileName);
+    		if(dateTimeFileName!=null && dateTimeFileName.length()>0)
+    		{
+    			if(xlfileName!=null)
+    			{
+    				xlfileName= xlfileName.replace("&date&", dateTimeFileName);
+    			}
+    		}
+
+    	}catch(Exception e)
+    	{
+			urlvalidator.info("Exception occured in "+methodsName+" : " +e);
+    	}
+    	urlvalidator.info("Inside "+methodsName+" -- End ");
+    	return xlfileName;
+    }
     
     //Read Request XL File
     private ArrayList<String> readXlFile() throws IOException
     {
-    	methodsName="URLValidator.readXLFile()";
+    	methodsName="readXlFile()";
+    	urlvalidator.info("Inside "+methodsName+" -- Start");
     	String columnValues="";
+    	final String bucketName="bits-wilp-ap-south-1";
     	ArrayList<String> columnval = null;
-    //	String inputfile="C:/Users/DELL/Documents/MAH/Mah.xlsx";
     	StorageBucketUtility amazonutils= new StorageBucketUtility();
-    	  
-    	String inputfile= amazonutils.getFiles("bits-wilp-ap-south-1","");
+	
     	try
     	{
+    	//Getting files from S3 bucket
+    	String inputfile= amazonutils.getFiles(bucketName,"");
     	FileInputStream fis= new FileInputStream(inputfile);
     	XSSFWorkbook wb= new XSSFWorkbook(fis);
     	XSSFSheet sheetvalue= wb.getSheet("Base");
@@ -109,25 +118,26 @@ import com.wilp.bits.email.EmailManagement;
     		{
     			Cell cell = columnitr.next();
     			 columnValues= cell.getStringCellValue();
-    			//System.out.println(columnValues +"\t\t\t");
+    			//urlvalidator.info(columnValues +"\t\t\t");
     			columnval.add(columnValues);    			
     		}
     	}
 
     	}catch(FileNotFoundException e)
     	{
-    		System.out.println("Exception occured in "+methodsName+ " : "+e);
+    		urlvalidator.info("Exception occured in "+methodsName+ " : "+e);
     	} catch (IOException e) {
-    		System.out.println("Exception occured in "+methodsName+ " : "+e);
+    		urlvalidator.info("Exception occured in "+methodsName+ " : "+e);
 		}
+    	urlvalidator.info("Inside "+methodsName+" -- End ");
     	return columnval;
     }
     
    //Write to XL file
     private void writeXlSheet(ArrayList<String> columnbasevalues)
     {
-    	methodsName="URLValidator.writeXLSheet()";
-    	String createdfile="";
+    	methodsName="writeXLSheet()";
+    	File createdfile;
     	FileInputStream input=null;
     	FileOutputStream output= null;
     	XSSFWorkbook workbook;
@@ -135,10 +145,13 @@ import com.wilp.bits.email.EmailManagement;
     	Row header;
     	Cell column=null;
     	String columnValues="";
-    	StorageBucketUtility util = new StorageBucketUtility();
+    	StorageBucketUtility amazonutils= new StorageBucketUtility();
     	try {
+    	   	urlvalidator.info("Inside "+methodsName+" -- Start ");
     		//Fetching the newly created XL File
+    	  
     		 createdfile= createXlSheet();
+    		 	System.out.println(createdfile);
 			 input= new FileInputStream(createdfile);
 			 workbook = new XSSFWorkbook();
 			 sheet= workbook.createSheet("MAH URLs");
@@ -154,57 +167,67 @@ import com.wilp.bits.email.EmailManagement;
 						column= header.createCell(0); 
 						column.setCellValue(words[i]);					
 					}
-					//System.out.println(s);
+					//urlvalidator.info(s);
 			 }
 			output = new FileOutputStream(createdfile);
 			workbook.write(output);
 			output.flush();		
-			System.out.println("Request URLs successfully written");
+			urlvalidator.info("Request URLs successfully written");
 			
 			validateURL(createdfile);
 			sendMail(createdfile);
-			util.writeFileToBucket(createdfile);
+			amazonutils.writeFileToBucket(createdfile);
 		
 		} catch (FileNotFoundException e) {
-			System.out.println("Exception occured in "+methodsName+ " : "+e);
+			urlvalidator.info("Exception occured in "+methodsName+ " : "+e);
 		} catch (IOException e) {
-			System.out.println("Exception occured in "+methodsName+ " : "+e);
+			urlvalidator.info("Exception occured in "+methodsName+ " : "+e);
 		}catch(Exception e)
     	{
-			EmailManagement failed_email =new EmailManagement();
+			urlvalidator.info("Exception occured in "+methodsName+ " : "+e);
     	}
-    	
+    	finally
+    	{
+			try {
+				output.close();
+			} catch (IOException e) {
+				urlvalidator.info("Exception occured in "+methodsName+ " : "+e);
+			}
+    	}
+       	urlvalidator.info("Inside "+methodsName+" -- End ");
     }
     
-    private void validateURL(String createdfile)
+    private void validateURL(File createdfile)
     {
+    	methodsName="validateURL()";
+    	urlvalidator.info("Inside "+methodsName+" -- Start ");
     	ReadWriteURLSSL ssl = new ReadWriteURLSSL();
     	try {
 			ssl.excelReadAndCheck(createdfile);
-			
-			ssl.showCertInfo(createdfile);
+
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.out.println("Exception occured in "+methodsName+ " : "+e);
 		}
+    	urlvalidator.info("Inside "+methodsName+" -- End ");
     }
     
-   private void sendMail(String createdfile)
+   private void sendMail(File createdfile)
    {
+	   methodsName="sendMail()";
+	   try
+	   {
+   		urlvalidator.info("Inside "+methodsName+" -- Start ");
 	   EmailManagement email =new EmailManagement();
 	   email.emailConfigurations(createdfile);
 	   
-	   System.out.println("Message sent");
+	   urlvalidator.info("Message sent");
+	   }catch(Exception e)
+	   {
+		   urlvalidator.info("Exception occured in "+methodsName+ " : "+e);
+	   }
+	   urlvalidator.info("Inside "+methodsName+" -- End ");
    }
 
-   
-   
-
-
-
-
-    
-    
-    
     
 }

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.logging.Logger;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -11,15 +12,16 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wilp.bits.lambda.ConnectEC2UsingSSM;
 
-//Getting EC2 data
+//Getting EC2 instance data
 public class InstanceUtility {
 
+	private static final Logger instanceUtility = Logger.getLogger(InstanceUtility.class.getName());
 	String methodsName="";
 	
 	//Getting the EC2 instance Id
-	public String getInstanceId() {
-		
+	public String getInstanceId() {	
 		final String bucket_Name="my-bits-wilp-jars";
 		final String file_Name="terraform_outputs.json";
 		String instanceId = readBucketJsonFileGetInstanceDetails(bucket_Name,file_Name);
@@ -36,9 +38,10 @@ public class InstanceUtility {
 		BufferedReader br = null;
 		ObjectMapper object;
 		StringBuilder fetchcontent = new StringBuilder();
+		methodsName="readBucketJsonFileGetInstanceDetails()";
 
 		try {
-			System.out.println("Inside getInstanceId");
+			instanceUtility.info("Inside "+methodsName+" -- Start");
 			s3 = AmazonS3ClientBuilder.defaultClient();
 			s3object = s3.getObject(new GetObjectRequest(bucket_name, fileName));
 			input = s3object.getObjectContent();
@@ -47,18 +50,18 @@ public class InstanceUtility {
 
 			while ((line = br.readLine()) != null) {
 				fetchcontent.append(line);
-				System.out.println(line);
+				instanceUtility.info(line);
 			}
 			JsonNode jsonNode = object.readTree(fetchcontent.toString());
 			instanceId = jsonNode.path("Bits_wilp_DP_id").path("value").asText();
 
-			System.out.println("Instance ID: " + instanceId);
+			instanceUtility.info("Instance ID: " + instanceId);
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			instanceUtility.info("Exception occured in " + methodsName + " : " + e);
 		}catch(Exception e1)
 		{
-			System.out.println("Exception occured in readS3JSONFileGetEC2Details() method : " + e1);
+			instanceUtility.info("Exception occured in " + methodsName + " : " + e1);
 		}finally
 		{
 			try
@@ -68,9 +71,10 @@ public class InstanceUtility {
 				
 			}catch(Exception e)
 			{
-				
+				instanceUtility.info("Exception occured in " + methodsName + " : " + e);
 			}
 		}
+		instanceUtility.info("Inside "+methodsName+" -- End");
 		return instanceId;
 	}
 

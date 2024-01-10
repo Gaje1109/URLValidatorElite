@@ -3,11 +3,13 @@ package com.wilp.bits.lambda;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.wilp.bits.aws.utility.InstanceUtility;
 import com.wilp.bits.config.utility.ReadWriteProps;
+
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -21,8 +23,14 @@ import software.amazon.awssdk.services.ssm.model.SendCommandResponse;
  * This Lambda function is used to trigger AWS SSM which in-turn runs the bash commands on AWS EC2
  */
 public class ConnectEC2UsingSSM implements RequestHandler<String, String> {
+	String methodsName="";
+	
+	private static final Logger connectEc2UsingSsm = Logger.getLogger(ConnectEC2UsingSSM.class.getName());
 
 	public String handleRequest(String input, Context context) {
+		methodsName="handleRequest";
+		connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
+		try{
 		InstanceUtility ec2Util = new InstanceUtility();
 		// AWS Credentials integrated
 		ReadWriteProps props = new ReadWriteProps();
@@ -34,15 +42,18 @@ public class ConnectEC2UsingSSM implements RequestHandler<String, String> {
 				.build();
 
 		String instanceId = ec2Util.getInstanceId();
-		System.out.println("Instance Id from Lambda: " + instanceId);
-		List<String> scripts = Arrays.asList("echo 'AWS-Lambda executing AWS EC2 through SSM'", "sudo -i",
-				"yum install java-1.8.0",
-				"wget 'https://my-bits-wilp-jars.s3.ap-south-1.amazonaws.com/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar'",
-				"ls", "#java -jar 'URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar'",
-				"aws ssm send-command --instance-ids i-056bb4b85c0a0b245 --document-name 'AWS-RunShellScript' --parameters '{\"commands\":[\"java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar\"]}' --region ap-south-1",
-				"#rm URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "#echo 'Jar removed'",
-				"#wget https://my-bits-wilp-jars.s3.ap-south-1.amazonaws.com/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
-				"#java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "echo 'Success'");
+		connectEc2UsingSsm.info("Instance Id from Lambda: " + instanceId);
+		List<String> scripts = Arrays.asList(
+			    "echo 'AWS-Lambda executing AWS EC2 through SSM'",
+			    "sudo -i",
+			    "yum install java-1.8.0",
+			    "#rm URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
+			    "wget 'https://my-bits-wilp-jars.s3.ap-south-1.amazonaws.com/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar'",
+			    "ls",
+			    "java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
+			   // String.format("aws ssm send-command --instance-ids %s --document-name 'AWS-RunShellScript' --parameters '{\"commands\":[\"java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar\"]}' --region ap-south-1", instanceId),
+			    "echo 'Success'"
+			);
 
 		// Execute each script
 		for (int i = 0; i < scripts.size(); i++) {
@@ -53,11 +64,16 @@ public class ConnectEC2UsingSSM implements RequestHandler<String, String> {
 			SendCommandResponse response = ssmClient.sendCommand(sendrequest);
 			String commandId = response.command().commandId();
 
-			System.out.println("Script " + (i + 1) + " execution triggerd. Command Id: " + commandId);
+			connectEc2UsingSsm.info("Script " + (i + 1) + " execution triggerd. Command Id: " + commandId);
 
 		}
-		ssmClient.close();
-		return "Success";
+		}catch(Exception e)
+		{
+			connectEc2UsingSsm.info("Exception occured in " + methodsName + " : " + e);
+		}
+		//ssmClient.close();
+		connectEc2UsingSsm.info("Inside "+methodsName+" -- End");
+		return "ConnectEC2UsingSSM  Completed with Success";
 	}
 
 }
