@@ -34,6 +34,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<String, String> {
 		InstanceUtility ec2Util = new InstanceUtility();
 		// AWS Credentials integrated
 		ReadWriteProps props = new ReadWriteProps();
+		input="ConnectEC2UsingSSM  Completed with Success"
 		String[] keys = props.ReadPropsFile().split(",");
 		String accesskey = keys[0];
 		String secretkey = keys[1];
@@ -73,7 +74,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<String, String> {
 		}
 		//ssmClient.close();
 		connectEc2UsingSsm.info("Inside "+methodsName+" -- End");
-		return "ConnectEC2UsingSSM  Completed with Success";
+		return input;
 	}
 
 }
