@@ -23,7 +23,6 @@
 <artifactId>poi</artifactId>
 <version>5.2.5</version>
 </dependency>
-
 <!--  https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml  -->
 <dependency>
 <groupId>org.apache.poi</groupId>
@@ -36,13 +35,6 @@
 <artifactId>javax.mail</artifactId>
 <version>1.6.2</version>
 </dependency>
-<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events -->
-<dependency>
-    <groupId>com.amazonaws</groupId>
-    <artifactId>aws-lambda-java-events</artifactId>
-    <version>3.11.4</version>
-</dependency>
-
 <!--  https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core  -->
 <dependency>
 <groupId>com.amazonaws</groupId>
@@ -90,6 +82,12 @@
         <artifactId>ssm</artifactId>
         <version>2.17.61</version> <!-- Replace with the desired version -->
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events -->
+<dependency>
+    <groupId>com.amazonaws</groupId>
+    <artifactId>aws-lambda-java-events</artifactId>
+    <version>3.11.4</version>
+</dependency>
 <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk -->
 <dependency>
     <groupId>com.amazonaws</groupId>
