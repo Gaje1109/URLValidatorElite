@@ -91,7 +91,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 		}
 		//ssmClient.close();
 		connectEc2UsingSsm.info("Inside "+methodsName+" -- End");
-		return input;
+		return "ConnectEC2UsingSSM  Completed with Success";
 	}
 
 	private HeadObjectResponse getHeadObj(S3Client s3client, String bucket, String key)
