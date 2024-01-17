@@ -7,12 +7,17 @@ import java.util.logging.Logger;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.S3Event;
+import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
 import com.wilp.bits.aws.utility.InstanceUtility;
 import com.wilp.bits.config.utility.ReadWriteProps;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.SendCommandRequest;
 import software.amazon.awssdk.services.ssm.model.SendCommandResponse;
@@ -22,15 +27,27 @@ import software.amazon.awssdk.services.ssm.model.SendCommandResponse;
  * 
  * This Lambda function is used to trigger AWS SSM which in-turn runs the bash commands on AWS EC2
  */
-public class ConnectEC2UsingSSM implements RequestHandler<String, String> {
+public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 	String methodsName="";
 	
 	private static final Logger connectEc2UsingSsm = Logger.getLogger(ConnectEC2UsingSSM.class.getName());
-
-	public String handleRequest(String input, Context context) {
+	S3EventNotificationRecord notify;
+	String srcBucket="";
+	String srckey="";
+	public String handleRequest(S3Event events, Context context) {
 		methodsName="handleRequest";
 		connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
 		try{
+		
+			notify=events.getRecords().get(0);
+			srcBucket= notify.getS3().getBucket().getName();
+			srckey=notify.getS3().getObject().getUrlDecodedKey();
+			S3Client s3client= S3Client.builder().build();
+			
+			HeadObjectResponse hdObj= getHeadObj(s3client,srcBucket, srckey);
+			connectEc2UsingSsm.info("Successfully retrieved: "+ srcBucket + "/" + srckey + " of type " + hdObj.contentType());
+			
+			
 		InstanceUtility ec2Util = new InstanceUtility();
 		// AWS Credentials integrated
 		ReadWriteProps props = new ReadWriteProps();
@@ -40,7 +57,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<String, String> {
 		SsmClient ssmClient = SsmClient.builder().region(Region.AP_SOUTH_1)
 				.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accesskey, secretkey)))
 				.build();
-
+	
 		String instanceId = ec2Util.getInstanceId();
 		connectEc2UsingSsm.info("Instance Id from Lambda: " + instanceId);
 		List<String> scripts = Arrays.asList(
@@ -76,4 +93,9 @@ public class ConnectEC2UsingSSM implements RequestHandler<String, String> {
 		return "ConnectEC2UsingSSM  Completed with Success";
 	}
 
+	private HeadObjectResponse getHeadObj(S3Client s3client, String bucket, String key)
+	{
+		HeadObjectRequest hdreq= HeadObjectRequest.builder().bucket("").key(key).build();
+		return s3client.headObject(hdreq);
+	}
 }
