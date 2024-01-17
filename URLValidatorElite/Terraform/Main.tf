@@ -1,7 +1,7 @@
 provider "aws" {
-  region     = "ap-south-1"
-  access_key = "AKIATWVMFH3A36SY6FTD"
-  secret_key = "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"
+  region     = var.aws_region
+  access_key = var.access_key
+  secret_key = var.secret_key
 }
 
 #S3 bucket creation
