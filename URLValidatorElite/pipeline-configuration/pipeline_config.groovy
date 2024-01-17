@@ -9,8 +9,8 @@ pipeline{
         FILE_NAME ='URLValidatorElite-'
         AWS_REGION= 'ap-south-1'
         AWS_DEFAULT_REGION ='ap-south-1'
-        TF_VAR_access_key=AWS_ACCESS_KEY_ID
-        TF_VAR_secret_key=AWS_SECRET_ACCESS_KEY
+       // TF_VAR_access_key=$AWS_ACCESS_KEY_ID
+        //TF_VAR_secret_key=AWS_SECRET_ACCESS_KEY
        // S3_BUCKET='bits-wilp-terraformstat-ap-south-1'
        // TF_STATE_KEY='/terraform.tfstate'
     } // environment close
