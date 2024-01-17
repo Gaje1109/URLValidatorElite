@@ -35,7 +35,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 	String srcBucket="";
 	String srckey="";
 	public String handleRequest(S3Event events, Context context) {
-		methodsName="handleRequest";
+		methodsName="handleRequest()";
 		connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
 		try{
 		
@@ -46,44 +46,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 			
 			HeadObjectResponse hdObj= getHeadObj(s3client,srcBucket, srckey);
 			connectEc2UsingSsm.info("Successfully retrieved: "+ srcBucket + "/" + srckey + " of type " + hdObj.contentType());
-			
-			
-		InstanceUtility ec2Util = new InstanceUtility();
-		// AWS Credentials integrated
-		ReadWriteProps props = new ReadWriteProps();
-		String[] keys = props.ReadPropsFile().split(",");
-		String accesskey = keys[0];
-		String secretkey = keys[1];
-		SsmClient ssmClient = SsmClient.builder().region(Region.AP_SOUTH_1)
-				.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accesskey, secretkey)))
-				.build();
-	
-		String instanceId = ec2Util.getInstanceId();
-		connectEc2UsingSsm.info("Instance Id from Lambda: " + instanceId);
-		List<String> scripts = Arrays.asList(
-			    "echo 'AWS-Lambda executing AWS EC2 through SSM'",
-			    "sudo -i",
-			    "yum install java-1.8.0",
-			    "#rm URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
-			    "wget 'https://my-bits-wilp-jars.s3.ap-south-1.amazonaws.com/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar'",
-			    "ls",
-			    "java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
-			   // String.format("aws ssm send-command --instance-ids %s --document-name 'AWS-RunShellScript' --parameters '{\"commands\":[\"java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar\"]}' --region ap-south-1", instanceId),
-			    "echo 'Success'"
-			);
-
-		// Execute each script
-		for (int i = 0; i < scripts.size(); i++) {
-			SendCommandRequest sendrequest = SendCommandRequest.builder().instanceIds(instanceId)
-					.documentName("AWS-RunShellScript")
-					.parameters(Collections.singletonMap("commands", Arrays.asList(scripts.get(i)))).build();
-
-			SendCommandResponse response = ssmClient.sendCommand(sendrequest);
-			String commandId = response.command().commandId();
-
-			connectEc2UsingSsm.info("Script " + (i + 1) + " execution triggerd. Command Id: " + commandId);
-
-		}
+			executeScriptInSSM();
 		}catch(Exception e)
 		{
 			connectEc2UsingSsm.info("Exception occured in " + methodsName + " : " + e);
@@ -93,6 +56,57 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 		return "ConnectEC2UsingSSM  Completed with Success";
 	}
 
+	
+	private void executeScriptInSSM()
+	{
+		methodsName="executeScriptInSSM()";
+		
+		try
+		{	connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
+			InstanceUtility ec2Util = new InstanceUtility();
+			// AWS Credentials integrated
+			ReadWriteProps props = new ReadWriteProps();
+
+			String[] keys = props.ReadPropsFile().split(",");
+			String accesskey = keys[0];
+			String secretkey = keys[1];
+			SsmClient ssmClient = SsmClient.builder().region(Region.AP_SOUTH_1)
+					.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accesskey, secretkey)))
+					.build();
+		
+			String instanceId = ec2Util.getInstanceId();
+			connectEc2UsingSsm.info("Instance Id from Lambda: " + instanceId);
+			
+			
+			List<String> scripts = Arrays.asList(
+				    "echo 'AWS-Lambda executing AWS EC2 through SSM'",
+				    "sudo -i",
+				    "yum install java-1.8.0",
+				    "#rm URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
+				    "wget 'https://my-bits-wilp-jars.s3.ap-south-1.amazonaws.com/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar'",
+				    "ls",
+				    "java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
+				   // String.format("aws ssm send-command --instance-ids %s --document-name 'AWS-RunShellScript' --parameters '{\"commands\":[\"java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar\"]}' --region ap-south-1", instanceId),
+				    "echo 'Success'"
+				);
+
+			// Execute each script
+			for (int i = 0; i < scripts.size(); i++) {
+				SendCommandRequest sendrequest = SendCommandRequest.builder().instanceIds(instanceId)
+						.documentName("AWS-RunShellScript")
+						.parameters(Collections.singletonMap("commands", Arrays.asList(scripts.get(i)))).build();
+
+				SendCommandResponse response = ssmClient.sendCommand(sendrequest);
+				String commandId = response.command().commandId();
+
+				connectEc2UsingSsm.info("Script " + (i + 1) + " execution triggerd. Command Id: " + commandId);
+			}
+			}catch(Exception e)
+			{
+				connectEc2UsingSsm.info("Exception occured in " + methodsName + " : " + e);
+			}
+		connectEc2UsingSsm.info("Inside "+methodsName+" -- Ends");
+	}
 	private HeadObjectResponse getHeadObj(S3Client s3client, String bucket, String key)
 	{
 		HeadObjectRequest hdreq= HeadObjectRequest.builder().bucket("").key(key).build();
