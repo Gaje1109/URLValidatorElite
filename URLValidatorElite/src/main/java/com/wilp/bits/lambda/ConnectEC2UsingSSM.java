@@ -51,7 +51,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 		InstanceUtility ec2Util = new InstanceUtility();
 		// AWS Credentials integrated
 		ReadWriteProps props = new ReadWriteProps();
-		input="ConnectEC2UsingSSM  Completed with Success";
+		//input="ConnectEC2UsingSSM  Completed with Success";
 		String[] keys = props.ReadPropsFile().split(",");
 		String accesskey = keys[0];
 		String secretkey = keys[1];
