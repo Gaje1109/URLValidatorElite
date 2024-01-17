@@ -80,7 +80,7 @@ pipeline{
                  
                     // Run 'terraform init'
                    bat 'terraform init'
-                 
+                                 }
                     }
                 }
                echo 'URLValidatorElite: Terraform Initialization -- ends'
