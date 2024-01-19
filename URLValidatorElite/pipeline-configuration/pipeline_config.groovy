@@ -76,7 +76,8 @@ pipeline{
                     dir('URLValidatorElite/Terraform') {
                       def currentchildDir= pwd()
                     echo "Current Directory: ${currentchildDir}"
-                     
+                    bat 'aws sts get-caller-identity --region ap-south-1'
+
                  
                     // Run 'terraform init'
                    bat 'terraform init'
