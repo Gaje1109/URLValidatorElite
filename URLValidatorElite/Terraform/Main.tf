@@ -1,5 +1,5 @@
 provider "aws" {
-  region     = var.bits_aws_region
+  region     = "ap-south-1"
   access_key = var.bits_access_key
   secret_key = var.bits_secret_key
 }
