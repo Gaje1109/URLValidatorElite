@@ -1,9 +1,12 @@
-variable "access_key" {
+variable "bits_access_key" {
   description = "AWS Access Key Id"
+  default = "aws key"
 }
-variable "secret_key" {
+variable "bits_secret_key" {
   description = "AWS Secret Access Key"
+  default = "aws key"
 }
-variable "aws_region" {
+variable "bits_aws_region" {
   description = "AWS Region"
+  default = "ap-south-1"
 }

@@ -70,13 +70,13 @@ pipeline{
 
                     // Print the current directory
                     echo "Current Directory: ${currentDir}"
-
+                      withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                                 string(credentialsId: 'AWS_SECRET_KEY_ID', variable: 'AWS_SECRET_ACCESS_KEY')]) {
                     // Move into directoy
                     dir('URLValidatorElite/Terraform') {
                       def currentchildDir= pwd()
                     echo "Current Directory: ${currentchildDir}"
-                     withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
-                                 string(credentialsId: 'AWS_SECRET_KEY_ID', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                     
                  
                     // Run 'terraform init'
                    bat 'terraform init'

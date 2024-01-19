@@ -1,7 +1,7 @@
 provider "aws" {
-  region     = var.aws_region
-  access_key = var.access_key
-  secret_key = var.secret_key
+  region     = var.bits_aws_region
+  access_key = var.bits_access_key
+  secret_key = var.bits_secret_key
 }
 
 #S3 bucket creation
