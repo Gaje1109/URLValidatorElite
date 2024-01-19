@@ -94,6 +94,8 @@ pipeline{
         steps{
              echo 'URLValidatorElite: Terraform Plan -- starts'
             script{
+              withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                                 string(credentialsId: 'AWS_SECRET_KEY_ID', variable: 'AWS_SECRET_ACCESS_KEY')]) {
                  dir('URLValidatorElite/Terraform') {
                        def currentchildDir= pwd()
                     echo "Current Directory: ${currentchildDir}" 
@@ -102,6 +104,7 @@ pipeline{
                   
                   } 
                   }
+            }
                     echo 'URLValidatorElite: Terraform Plan -- ends'
         }
         }
@@ -110,6 +113,8 @@ pipeline{
         steps{
               echo 'URLValidatorElite: Terraform Approve -- starts'
             script{
+              withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                                 string(credentialsId: 'AWS_SECRET_KEY_ID', variable: 'AWS_SECRET_ACCESS_KEY')]) {
                  dir('URLValidatorElite/Terraform') {
                     def currentchildDir= pwd()
                     echo "Current Directory: ${currentchildDir}"
@@ -117,6 +122,7 @@ pipeline{
                     // Run 'terraform apply'
                       bat 'terraform apply -input=false tfplan'
                     }
+                                 }
             }
           echo 'URLValidatorElite: Terraform Approve -- ends'
         }     
