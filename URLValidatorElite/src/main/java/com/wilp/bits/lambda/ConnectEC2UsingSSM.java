@@ -1,27 +1,29 @@
 package com.wilp.bits.lambda;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.util.IOUtils;
 import com.wilp.bits.aws.utility.InstanceUtility;
 import com.wilp.bits.config.utility.ReadWriteProps;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.SendCommandRequest;
 import software.amazon.awssdk.services.ssm.model.SendCommandResponse;
-
 /*
  * Amazon Lambda Function
  * 
@@ -29,35 +31,56 @@ import software.amazon.awssdk.services.ssm.model.SendCommandResponse;
  */
 public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 	String methodsName="";
+	ReadWriteProps props = new ReadWriteProps();
+	String[] keys = props.ReadPropsFile().split(",");
+	String accesskey = keys[0];
+	String secretkey = keys[1];
+	BasicAWSCredentials awsCreds = new BasicAWSCredentials(accesskey, secretkey);
+	private final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion("ap-south-1").withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
 	
 	private static final Logger connectEc2UsingSsm = Logger.getLogger(ConnectEC2UsingSSM.class.getName());
-	S3EventNotificationRecord notify;
-	String srcBucket="";
-	String srckey="";
+	
 	public String handleRequest(S3Event events, Context context) {
 		methodsName="handleRequest()";
 		connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
 		try{
-		
-			notify=events.getRecords().get(0);
-			srcBucket= notify.getS3().getBucket().getName();
-			srckey=notify.getS3().getObject().getUrlDecodedKey();
-			S3Client s3client= S3Client.builder().build();
-			
-			HeadObjectResponse hdObj= getHeadObj(s3client,srcBucket, srckey);
-			connectEc2UsingSsm.info("Successfully retrieved: "+ srcBucket + "/" + srckey + " of type " + hdObj.contentType());
+			readS3MetaData(events);
 			executeScriptInSSM();
 		}catch(Exception e)
 		{
 			connectEc2UsingSsm.info("Exception occured in " + methodsName + " : " + e);
+		//	executeScriptInSSM(inputstream);
+			executeScriptInSSM();
 		}
 		//ssmClient.close();
 		connectEc2UsingSsm.info("Inside "+methodsName+" -- End");
 		return "ConnectEC2UsingSSM  Completed with Success";
 	}
 
+	private String readS3MetaData(S3Event events)
+	{
+		S3EventNotificationRecord notify;
+		String srcBucket="";
+		String srcKey="";
+		methodsName="handleRequest()";
 	
-	private void executeScriptInSSM()
+		try {
+				connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
+                srcBucket=events.getRecords().get(0).getS3().getBucket().getName();
+                srcKey=events.getRecords().get(0).getS3().getObject().getKey();
+                InputStream input=s3Client.getObject(srcBucket, srcKey).getObjectContent();
+                String content= IOUtils.toString(input);
+                connectEc2UsingSsm.info("Bucket Name : "+srcBucket+"  File Name: "+srcKey);
+                
+         } catch (Exception e) {
+        	 connectEc2UsingSsm.info("Exception occured in " + methodsName + " : " + e);
+        }
+		connectEc2UsingSsm.info("Inside "+methodsName+" -- End");
+		
+		return "Successfullly Read from S3Bucket";
+    }
+
+   private void executeScriptInSSM()
 	{
 		methodsName="executeScriptInSSM()";
 		
@@ -65,11 +88,9 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 		{	connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
 			InstanceUtility ec2Util = new InstanceUtility();
 			// AWS Credentials integrated
-			ReadWriteProps props = new ReadWriteProps();
+			
 
-			String[] keys = props.ReadPropsFile().split(",");
-			String accesskey = keys[0];
-			String secretkey = keys[1];
+			
 			SsmClient ssmClient = SsmClient.builder().region(Region.AP_SOUTH_1)
 					.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accesskey, secretkey)))
 					.build();
@@ -106,10 +127,5 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 				connectEc2UsingSsm.info("Exception occured in " + methodsName + " : " + e);
 			}
 		connectEc2UsingSsm.info("Inside "+methodsName+" -- Ends");
-	}
-	private HeadObjectResponse getHeadObj(S3Client s3client, String bucket, String key)
-	{
-		HeadObjectRequest hdreq= HeadObjectRequest.builder().bucket("").key(key).build();
-		return s3client.headObject(hdreq);
 	}
 }
