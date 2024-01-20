@@ -94,16 +94,17 @@ pipeline{
         steps{
              echo 'URLValidatorElite: Terraform Plan -- starts'
             script{
-              withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
-                                 string(credentialsId: 'AWS_SECRET_KEY_ID', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-                 dir('URLValidatorElite/Terraform') {
+                        bat 'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}'
+                        bat 'export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
+                        bat 'export AWS_REGION=${AWS_REGION}'
+                dir('URLValidatorElite/Terraform') {
                        def currentchildDir= pwd()
                     echo "Current Directory: ${currentchildDir}" 
                       bat 'terraform plan -out tfplan'
                       bat 'terraform show -no-color tfplan > tfplan.txt'
                   
                   } 
-                  }
+                  
             }
                     echo 'URLValidatorElite: Terraform Plan -- ends'
         }
