@@ -9,10 +9,6 @@ pipeline{
         FILE_NAME ='URLValidatorElite-'
         AWS_REGION= 'ap-south-1'
         AWS_DEFAULT_REGION ='ap-south-1'
-       // TF_VAR_access_key=$AWS_ACCESS_KEY_ID
-        //TF_VAR_secret_key=AWS_SECRET_ACCESS_KEY
-       // S3_BUCKET='bits-wilp-terraformstat-ap-south-1'
-       // TF_STATE_KEY='/terraform.tfstate'
     } // environment close
 
     agent any
@@ -50,7 +46,6 @@ pipeline{
                           def currentchildDir= pwd()
                      echo "Current Directory: ${currentchildDir}"
                      echo " jar file : ${JAR_FILE_NAME}"
-                        // bat 'aws s3 cp /${FILE_NAME}${JAR_FILE_NAME} s3://${AWS_BUCKET_NAME}/'
                          
                          bat 'aws s3 cp URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar s3://my-bits-wilp-jars/'
                         
@@ -94,17 +89,16 @@ pipeline{
         steps{
              echo 'URLValidatorElite: Terraform Plan -- starts'
             script{
-                        bat 'export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}'
-                        bat 'export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
-                        bat 'export AWS_REGION=${AWS_REGION}'
-                dir('URLValidatorElite/Terraform') {
+              withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                                 string(credentialsId: 'AWS_SECRET_KEY_ID', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                 dir('URLValidatorElite/Terraform') {
                        def currentchildDir= pwd()
                     echo "Current Directory: ${currentchildDir}" 
                       bat 'terraform plan -out tfplan'
                       bat 'terraform show -no-color tfplan > tfplan.txt'
                   
                   } 
-                  
+                  }
             }
                     echo 'URLValidatorElite: Terraform Plan -- ends'
         }
@@ -138,7 +132,6 @@ pipeline{
                           def currentchildDir= pwd()
                      echo "Current Directory: ${currentchildDir}"
                      echo " jar file : ${JAR_FILE_NAME}"
-                        // bat 'aws s3 cp /${FILE_NAME}${JAR_FILE_NAME} s3://${AWS_BUCKET_NAME}/'
                          
                          bat 'aws s3 cp terraform_outputs.json s3://my-bits-wilp-jars/'
                          echo 'URLValidatorElite: Push Terraform ouput file to S3 bucket -- ends'

@@ -64,29 +64,6 @@ public class ReadWriteURLSSL {
             + "{2,6}\\b([-a-zA-Z0-9@:%"
             + "._\\+~#?&//=]*)";
 	
-	//static String filename="D:/C Drive Documents/MAH/Mah.xlsx";
-//	//D:\C Drive Documents\MAH\Mah.xlsx
-//	public static void main(String[] args) throws Exception {
-//	
-//		ReadWriteURLSSL urls = new ReadWriteURLSSL();
-//		
-//		// Reading URls, checking whether redirecting or not
-//		urls.excelReadAndCheck(filename);
-//		//urls.showCertInfo(filename);
-//	//readWriteURLSSL.info("---------------------Read and write operation done for URls------------------------");
-//	
-//	}
-		
-//		//readWriteURLSSL.info("Wait!!!!");
-//		//Thread.sleep(5000);
-//			
-//			// Capturing the SSL start date and end date
-//		urls.showCertInfo();
-//			readWriteURLSSL.info("---------------------Certificate datas operations done successfully------------------------");
-//			
-//	}
-	
-	
 	//Reading excel, Checking redirection, Writing into excel
 	public void excelReadAndCheck(File filename)throws Exception
 	{
@@ -292,7 +269,8 @@ public class ReadWriteURLSSL {
 				readWriteURLSSL.info("-----------------200x,400x,500x VALIDATON STARTED---------------");
 				
 					readWriteURLSSL.info("Status code not in 300 series ");
-					
+					Cell redirectedurl =row.createCell(1);
+					redirectedurl.setCellValue(updatedUrl);
 					writeIntoXL(filename, row);
 //					Cell code = row.createCell(2);
 //					code.setCellValue(status);
@@ -313,7 +291,8 @@ public class ReadWriteURLSSL {
 				else
 				{// 300x else statement start
 					readWriteURLSSL.info("-----------------300X VALIDATON STARTED---------------");
-					
+//					System.out.println("URL is :"+urltest);
+//					updatedUrl=urltest;
 					// Checking for same request and redirected URL -- start
 					if(updatedUrl.startsWith("https://www.")&& updatedUrl.endsWith("/"))
 					{//Validation 1 start

@@ -23,7 +23,7 @@ import com.wilp.bits.email.EmailManagement;
 	public class URLValidator{
 	private static final Logger urlvalidator= Logger.getLogger(URLValidator.class.getName());
 	String methodsName="";
-	String xlfileName= "MAH_&date&_1.xlsx";
+	String xlfileName= "URLVALIDATOR_&date&_1.xlsx";
 	  
     public static void main( String[] args ) throws IOException
     {
