@@ -32,7 +32,7 @@ public class EmailManagement {
 		emailManagement.info("Inside " + methodsName + " -- Start");
 		String message = "Hi, " + "\nPlease find the report attached here with this email." + " " + "\nThanks,"
 				+ "\nGajendran R," + "\n(Developer)";
-		String subject = "MAH Reports";
+		String subject = "URL Validation Reports";
 
 		// Getting datas from properties file
 		String to = keys[1].replace("\"", "");
