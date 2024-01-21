@@ -154,7 +154,7 @@ import com.wilp.bits.email.EmailManagement;
     		 	System.out.println(createdfile);
 			 input= new FileInputStream(createdfile);
 			 workbook = new XSSFWorkbook();
-			 sheet= workbook.createSheet("MAH URLs");
+			 sheet= workbook.createSheet("URLs");
 			 header= sheet.createRow(0);
 			 //converting arraylist to string
 			 columnValues= String.join(",", columnbasevalues);
