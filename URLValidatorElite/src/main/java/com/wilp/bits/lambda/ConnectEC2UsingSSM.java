@@ -96,7 +96,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 			String instanceId = ec2Util.getInstanceId();
 			connectEc2UsingSsm.info("Instance Id from Lambda: " + instanceId);
 			
-			
+			//Bash Scripts
 			List<String> scripts = Arrays.asList(
 				    "echo 'AWS-Lambda executing AWS EC2 through SSM'",
 				    "sudo -i",
