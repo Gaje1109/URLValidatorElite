@@ -125,6 +125,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
    private void executeScriptInSSM()
 	{
 		methodsName="executeScriptInSSM()";
+		String commandId="";
 		
 		try
 		{	connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
@@ -147,6 +148,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 				    "yum install java-1.8.0",
 				    "wget 'https://my-bits-wilp-jars.s3.ap-south-1.amazonaws.com/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar'",
 				    "ls",
+				    "sleep 5",
 				    "java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
 				   // String.format("aws ssm send-command --instance-ids %s --document-name 'AWS-RunShellScript' --parameters '{\"commands\":[\"java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar\"]}' --region ap-south-1", instanceId),
 				    "echo 'Success'"
@@ -159,9 +161,11 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 						.parameters(Collections.singletonMap("commands", Arrays.asList(scripts.get(i)))).build();
 
 				SendCommandResponse response = ssmClient.sendCommand(sendrequest);
-				String commandId = response.command().commandId();
+				 commandId = response.command().commandId();
 
 				connectEc2UsingSsm.info("Script " + (i + 1) + " execution triggerd. Command Id: " + commandId);
+			
+			 
 			}
 			}catch(Exception e)
 			{
