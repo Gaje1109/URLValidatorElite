@@ -100,9 +100,10 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 			List<String> scripts = Arrays.asList(
 				    "echo 'AWS-Lambda executing AWS EC2 through SSM'",
 				    "sudo -i",
+				    "rm *URLValidatorElite*.jar",
 				    "yum install java-1.8.0",
 				    "#rm URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
-				    "rm *URLValidatorElite*.jar",
+				  
 				    
 				    "wget 'https://my-bits-wilp-jars.s3.ap-south-1.amazonaws.com/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar'",
 				    "ls",
