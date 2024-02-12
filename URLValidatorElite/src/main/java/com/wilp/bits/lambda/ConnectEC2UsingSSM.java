@@ -45,8 +45,9 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 		connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
 		try{
 			readS3MetaData(events);
-			rmPreviousJars();
+			//rmPreviousJars();
 			executeScriptInSSM();
+			rmPreviousJars();
 		}catch(Exception e)
 		{
 			connectEc2UsingSsm.info("Exception occured in " + methodsName + " : " + e);
