@@ -30,7 +30,7 @@ public class EmailManagement {
 	public void emailConfigurations(File createdfile) {
 		methodsName = "emailConfigurations";
 		emailManagement.info("Inside " + methodsName + " -- Start");
-		String message = "Hi, " + "\nPlease find the report attached here with this email." + " " + "\nThanks,"
+		String message = "Hi, " + "\nPlease find the report attached here with this email for Data mining and analysis purpose." + " " + "\nThanks,"
 				+ "\nGajendran R," + "\n(Developer)";
 		String subject = "URL Validation Reports";
 
