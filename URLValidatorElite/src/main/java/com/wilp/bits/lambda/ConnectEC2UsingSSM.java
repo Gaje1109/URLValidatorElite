@@ -102,6 +102,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 				    "sudo -i",
 				    "yum install java-1.8.0",
 				    "rm URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
+				    
 				    "wget 'https://my-bits-wilp-jars.s3.ap-south-1.amazonaws.com/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar'",
 				    "ls",
 				    "java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
