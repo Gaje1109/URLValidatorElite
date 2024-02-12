@@ -45,6 +45,7 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 		connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
 		try{
 			readS3MetaData(events);
+			rmPreviousJars();
 			executeScriptInSSM();
 		}catch(Exception e)
 		{
@@ -78,6 +79,46 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 		return "Successfullly Read from S3Bucket";
     }
 
+	private void rmPreviousJars()
+	{
+		try
+		{	connectEc2UsingSsm.info("Inside "+methodsName+" -- Start");
+			InstanceUtility ec2Util = new InstanceUtility();
+			// AWS Credentials integrated
+			
+
+			
+			SsmClient ssmClient = SsmClient.builder().region(Region.AP_SOUTH_1)
+					.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accesskey, secretkey)))
+					.build();
+		
+			String instanceId = ec2Util.getInstanceId();
+			connectEc2UsingSsm.info("Instance Id from Lambda: " + instanceId);
+			
+			//Bash Scripts
+			List<String> scripts = Arrays.asList(
+				    "echo 'AWS-Lambda removing bash scripts through SSM'",
+				    "sudo -i",
+				    "rm *URLValidatorElite*.jar",
+				    "echo 'Success'"
+				);
+
+			// Execute each script
+			for (int i = 0; i < scripts.size(); i++) {
+				SendCommandRequest sendrequest = SendCommandRequest.builder().instanceIds(instanceId)
+						.documentName("AWS-RunShellScript")
+						.parameters(Collections.singletonMap("commands", Arrays.asList(scripts.get(i)))).build();
+
+				SendCommandResponse response = ssmClient.sendCommand(sendrequest);
+				String commandId = response.command().commandId();
+
+				connectEc2UsingSsm.info("Script " + (i + 1) + " execution triggerd. Command Id: " + commandId);
+			}
+			}catch(Exception e)
+			{
+				connectEc2UsingSsm.info("Exception occured in " + methodsName + " : " + e);
+			}
+	}
    private void executeScriptInSSM()
 	{
 		methodsName="executeScriptInSSM()";
@@ -98,13 +139,10 @@ public class ConnectEC2UsingSSM implements RequestHandler<S3Event, String> {
 			
 			//Bash Scripts
 			List<String> scripts = Arrays.asList(
-				    "echo 'AWS-Lambda executing AWS EC2 through SSM'",
+				    "echo 'AWS-Lambda executing bash scripts on AWS EC2 through SSM'",
 				    "sudo -i",
-				    "rm *URLValidatorElite*.jar",
 				    "yum install java-1.8.0",
-				    "#rm URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
-				  
-				    
+				    "#rm URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",  
 				    "wget 'https://my-bits-wilp-jars.s3.ap-south-1.amazonaws.com/URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar'",
 				    "ls",
 				    "java -jar URLValidatorElite-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
